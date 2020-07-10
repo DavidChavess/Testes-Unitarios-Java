@@ -8,6 +8,7 @@ import static org.junit.Assert.assertThat;
 import java.util.Date;
 
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ErrorCollector;
@@ -24,17 +25,20 @@ public class LocacaoServiceTest {
 	@Rule
 	public ErrorCollector error = new ErrorCollector(); 
 	
+	private LocacaoService service; 
+	
+	@Before
+	public void setup() {
+		service = new LocacaoService();
+	}
+	
 	@Test
-	public void teste() throws FilmeSemEstoqueException, LocacaoException{
-		//cenario
+	public void teste() throws Exception{
 		Usuario usuario = new Usuario("Usuario 1");
 		Filme filme = new Filme("Filme 1", 1, 5.05);
-		LocacaoService service = new LocacaoService();
 		
-		//acao
 		Locacao locacao = service.alugarFilme(usuario, filme);
 		
-		//validacao
 		error.checkThat(locacao.getValor(), is(equalTo(5.05)));
 		error.checkThat(DataUtils.isMesmaData(locacao.getDataLocacao(), new Date()), is(true) );
 		error.checkThat(DataUtils.isMesmaData(locacao.getDataRetorno(), DataUtils.obterDataComDiferencaDias(1)), is(true));
@@ -42,22 +46,17 @@ public class LocacaoServiceTest {
 	
 	@Test(expected = FilmeSemEstoqueException.class)
 	public void testeLocacao_FilmeSemEstoque() throws Exception {
-		//cenario
 		Usuario usuario = new Usuario("Usuario 1");
-		Filme filme = new Filme("Filme 1", 0, 5.05);
-		LocacaoService service = new LocacaoService();
 		
-		//acao
+		Filme filme = new Filme("Filme 1", 0, 5.05);
+		
 		service.alugarFilme(usuario, filme);
 	}
 
 	@Test
-	public void testeLocacao_UsuarioVazio() throws FilmeSemEstoqueException{
-		//cenario
-		LocacaoService service = new LocacaoService();
+	public void testeLocacao_UsuarioVazio() throws FilmeSemEstoqueException{	
 		Filme filme = new Filme("Filme 1", 1, 5.05);
 		
-		//acao
 		try {
 			service.alugarFilme(null, filme);
 			Assert.fail();
@@ -68,7 +67,6 @@ public class LocacaoServiceTest {
 	
 	@Test
 	public void testeLocacao_FilmeVazio() throws FilmeSemEstoqueException {
-		LocacaoService service = new LocacaoService();		
 		Usuario usuario = new Usuario("Usuario 1");
 		
 		try {
