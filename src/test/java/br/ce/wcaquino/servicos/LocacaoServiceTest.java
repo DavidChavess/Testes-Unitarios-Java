@@ -3,7 +3,6 @@ package br.ce.wcaquino.servicos;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
@@ -13,7 +12,9 @@ import java.util.Date;
 import java.util.List;
 
 import org.junit.Assert;
+import org.junit.Assume;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ErrorCollector;
@@ -39,6 +40,9 @@ public class LocacaoServiceTest {
 	
 	@Test
 	public void teste() throws Exception{
+		
+		Assume.assumeFalse(DataUtils.verificarDiaSemana(new Date(), Calendar.SATURDAY));
+		
 		Usuario usuario = new Usuario("Usuario 1");
 		
 		List<Filme> filmes = Arrays.asList(
@@ -160,7 +164,10 @@ public class LocacaoServiceTest {
 	}
 	
 	@Test
+
 	public void deveEntregarFilmeNaSegundaSeAlugarNoSabado() throws FilmeSemEstoqueException, LocacaoException {
+		
+		Assume.assumeTrue(DataUtils.verificarDiaSemana(new Date(), Calendar.SATURDAY));
 		List<Filme> filmes = Arrays.asList(new Filme("Filme 1", 1, 4.0));
 		Usuario usuario = new Usuario("usuario 1");
 		
