@@ -1,6 +1,7 @@
 package br.ce.wcaquino.servicos;
 
 
+import static br.ce.wcaquino.matchers.MatchersProprios.caiNumaSegunda;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
@@ -22,6 +23,7 @@ import br.ce.wcaquino.entidades.Locacao;
 import br.ce.wcaquino.entidades.Usuario;
 import br.ce.wcaquino.exceptions.FilmeSemEstoqueException;
 import br.ce.wcaquino.exceptions.LocacaoException;
+import br.ce.wcaquino.matchers.MatchersProprios;
 import br.ce.wcaquino.utils.DataUtils;
 
 public class LocacaoServiceTest {
@@ -94,5 +96,16 @@ public class LocacaoServiceTest {
 		} catch (LocacaoException e) {
 			assertThat(e.getMessage(), is("lista de filmes vazia"));
 		}
+	}
+	
+	@Test
+	public void deveEntregarFilmeNaSegundaSeAlugarNoSabado() throws FilmeSemEstoqueException, LocacaoException {
+		Assume.assumeTrue(DataUtils.verificarDiaSemana(new Date(), Calendar.SATURDAY));
+		List<Filme> filmes = Arrays.asList(new Filme("Filme 1", 1, 4.0));
+		Usuario usuario = new Usuario("usuario 1");
+
+		Locacao locacao = service.alugarFilme(usuario, filmes);
+
+		assertThat(locacao.getDataRetorno(), caiNumaSegunda());
 	}
 }
