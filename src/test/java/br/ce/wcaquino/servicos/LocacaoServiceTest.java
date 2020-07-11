@@ -2,6 +2,9 @@ package br.ce.wcaquino.servicos;
 
 
 import static br.ce.wcaquino.matchers.MatchersProprios.caiNumaSegunda;
+import static br.ce.wcaquino.matchers.MatchersProprios.ehHoje;
+import static br.ce.wcaquino.matchers.MatchersProprios.ehHojeComDiferencaDeDias;
+import static br.ce.wcaquino.matchers.MatchersProprios.ehHojeComDiferencaDeUmDia;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
@@ -28,10 +31,10 @@ import br.ce.wcaquino.utils.DataUtils;
 
 public class LocacaoServiceTest {
 	
+	private LocacaoService service; 
+	
 	@Rule
 	public ErrorCollector error = new ErrorCollector(); 
-	
-	private LocacaoService service; 
 	
 	@Before
 	public void setup() {
@@ -39,12 +42,9 @@ public class LocacaoServiceTest {
 	}
 	
 	@Test
-	public void teste() throws Exception{
-		
+	public void deveAlugarFilmesComUmUsuario() throws Exception{
 		Assume.assumeFalse(DataUtils.verificarDiaSemana(new Date(), Calendar.SATURDAY));
-		
 		Usuario usuario = new Usuario("Usuario 1");
-		
 		List<Filme> filmes = Arrays.asList(
 			new Filme("Filme 1", 1, 4.0),
 			new Filme("Filme 2", 1, 5.0)
@@ -53,8 +53,8 @@ public class LocacaoServiceTest {
 		Locacao locacao = service.alugarFilme(usuario, filmes);
 		
 		error.checkThat(locacao.getValor(), is(equalTo(9.0)));
-		error.checkThat(DataUtils.isMesmaData(locacao.getDataLocacao(), new Date()), is(true) );
-		error.checkThat(DataUtils.isMesmaData(locacao.getDataRetorno(), DataUtils.obterDataComDiferencaDias(1)), is(true));
+	    error.checkThat(locacao.getDataLocacao(), ehHoje());
+	    error.checkThat(locacao.getDataRetorno(), ehHojeComDiferencaDeDias(1));
 	}
 	
 	@Test(expected = FilmeSemEstoqueException.class)
