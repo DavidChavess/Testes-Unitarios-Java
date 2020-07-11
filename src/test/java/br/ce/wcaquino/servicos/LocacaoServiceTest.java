@@ -4,10 +4,13 @@ package br.ce.wcaquino.servicos;
 import static br.ce.wcaquino.matchers.MatchersProprios.caiNumaSegunda;
 import static br.ce.wcaquino.matchers.MatchersProprios.ehHoje;
 import static br.ce.wcaquino.matchers.MatchersProprios.ehHojeComDiferencaDeDias;
-import static br.ce.wcaquino.matchers.MatchersProprios.ehHojeComDiferencaDeUmDia;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
+import static teste.matchers.NumerosPropriosMatchers.issoEh20;
+import static teste.matchers.NumerosPropriosMatchers.issoEh30;
+import static teste.matchers.NumerosPropriosMatchers.issoEhDez;
+import static teste.matchers.NumerosPropriosMatchers.issoEhIgualA;
 
 import java.util.Arrays;
 import java.util.Calendar;
@@ -26,7 +29,6 @@ import br.ce.wcaquino.entidades.Locacao;
 import br.ce.wcaquino.entidades.Usuario;
 import br.ce.wcaquino.exceptions.FilmeSemEstoqueException;
 import br.ce.wcaquino.exceptions.LocacaoException;
-import br.ce.wcaquino.matchers.MatchersProprios;
 import br.ce.wcaquino.utils.DataUtils;
 
 public class LocacaoServiceTest {
@@ -55,6 +57,7 @@ public class LocacaoServiceTest {
 		error.checkThat(locacao.getValor(), is(equalTo(9.0)));
 	    error.checkThat(locacao.getDataLocacao(), ehHoje());
 	    error.checkThat(locacao.getDataRetorno(), ehHojeComDiferencaDeDias(1));
+	  
 	}
 	
 	@Test(expected = FilmeSemEstoqueException.class)

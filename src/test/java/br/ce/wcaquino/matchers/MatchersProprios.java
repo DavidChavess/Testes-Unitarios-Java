@@ -21,5 +21,4 @@ public class MatchersProprios {
 	public static VerificaDataComDiferencaDiasMatcher ehHojeComDiferencaDeDias(Integer diferencaDias) {
 		return new VerificaDataComDiferencaDiasMatcher(diferencaDias);
 	}
-
 }
