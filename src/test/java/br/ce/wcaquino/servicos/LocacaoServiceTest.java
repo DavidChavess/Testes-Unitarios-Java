@@ -22,6 +22,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ErrorCollector;
+import org.mockito.Mockito;
 
 import br.ce.wcaquino.entidades.Filme;
 import br.ce.wcaquino.entidades.Locacao;
@@ -30,9 +31,7 @@ import br.ce.wcaquino.exceptions.FilmeSemEstoqueException;
 import br.ce.wcaquino.exceptions.LocacaoException;
 import br.ce.wcaquino.utils.DataUtils;
 import buildermaster.BuilderMaster;
-import builders.FilmeBuilder;
 import dao.LocacaoDao;
-import dao.LocacaoDaoFake;
 
 public class LocacaoServiceTest {
 	
@@ -44,7 +43,7 @@ public class LocacaoServiceTest {
 	@Before
 	public void setup() {
 		service = new LocacaoService();
-		LocacaoDao dao = new LocacaoDaoFake();
+		LocacaoDao dao = Mockito.mock(LocacaoDao.class);
 		service.setLocacaoDao(dao);
 	}
 	
