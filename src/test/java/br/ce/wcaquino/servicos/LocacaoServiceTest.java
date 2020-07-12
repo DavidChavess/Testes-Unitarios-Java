@@ -31,6 +31,8 @@ import br.ce.wcaquino.exceptions.LocacaoException;
 import br.ce.wcaquino.utils.DataUtils;
 import buildermaster.BuilderMaster;
 import builders.FilmeBuilder;
+import dao.LocacaoDao;
+import dao.LocacaoDaoFake;
 
 public class LocacaoServiceTest {
 	
@@ -42,6 +44,8 @@ public class LocacaoServiceTest {
 	@Before
 	public void setup() {
 		service = new LocacaoService();
+		LocacaoDao dao = new LocacaoDaoFake();
+		service.setLocacaoDao(dao);
 	}
 	
 	@Test

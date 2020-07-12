@@ -10,8 +10,11 @@ import br.ce.wcaquino.entidades.Usuario;
 import br.ce.wcaquino.exceptions.FilmeSemEstoqueException;
 import br.ce.wcaquino.exceptions.LocacaoException;
 import br.ce.wcaquino.utils.DataUtils;
+import dao.LocacaoDao;
 
 public class LocacaoService {
+
+	private LocacaoDao dao;
 	
 	public Locacao alugarFilme(Usuario usuario, List<Filme> filmes) throws FilmeSemEstoqueException, LocacaoException {
 		if(filmes == null) {
@@ -64,6 +67,12 @@ public class LocacaoService {
 		//Salvando a locacao...	
 		//TODO adicionar método para salvar
 		
+		dao.salvar(locacao); 
+		
 		return locacao;
+	}
+	
+	public void setLocacaoDao(LocacaoDao dao) {
+		this.dao = dao;
 	}
 }
