@@ -10,6 +10,7 @@ import static builders.UsuarioBuilder.umUsuario;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
 import java.util.Calendar;
@@ -29,11 +30,15 @@ import br.ce.wcaquino.entidades.Locacao;
 import br.ce.wcaquino.entidades.Usuario;
 import br.ce.wcaquino.exceptions.FilmeSemEstoqueException;
 import br.ce.wcaquino.exceptions.LocacaoException;
+import br.ce.wcaquino.exceptions.UsuarioNegativadoException;
 import br.ce.wcaquino.utils.DataUtils;
-import buildermaster.BuilderMaster;
 import dao.LocacaoDao;
 
 public class LocacaoServiceTest {
+	
+	private LocacaoDao dao;
+	
+	private SPCService consultaSpc;
 	
 	private LocacaoService service; 
 	
@@ -43,8 +48,10 @@ public class LocacaoServiceTest {
 	@Before
 	public void setup() {
 		service = new LocacaoService();
-		LocacaoDao dao = Mockito.mock(LocacaoDao.class);
+		dao = Mockito.mock(LocacaoDao.class);
+		consultaSpc = Mockito.mock(SPCService.class);
 		service.setLocacaoDao(dao);
+		service.setConsultaSpc(consultaSpc);
 	}
 	
 	@Test
@@ -70,7 +77,7 @@ public class LocacaoServiceTest {
 	}
 
 	@Test
-	public void naoDeveAlugarFilmeSemUsuario() throws FilmeSemEstoqueException{	
+	public void naoDeveAlugarFilmeSemUsuario() throws FilmeSemEstoqueException, UsuarioNegativadoException{	
 		List<Filme> filmes = Arrays.asList(umFilme().agora());
 		
 		try {
@@ -82,7 +89,7 @@ public class LocacaoServiceTest {
 	}
 	
 	@Test
-	public void naoDeveAlugarFilmeSemFilme() throws FilmeSemEstoqueException {
+	public void naoDeveAlugarFilmeSemFilme() throws FilmeSemEstoqueException, UsuarioNegativadoException {
 		Usuario usuario = umUsuario().agora();
 		
 		try {
@@ -94,7 +101,7 @@ public class LocacaoServiceTest {
 	}
 	
 	@Test
-	public void deveEntregarFilmeNaSegundaSeAlugarNoSabado() throws FilmeSemEstoqueException, LocacaoException {
+	public void deveEntregarFilmeNaSegundaSeAlugarNoSabado() throws Exception {
 		Assume.assumeTrue(DataUtils.verificarDiaSemana(new Date(), Calendar.SATURDAY));
 		List<Filme> filmes = Arrays.asList(umFilme().agora());
 		Usuario usuario = umUsuario().agora();
@@ -102,11 +109,21 @@ public class LocacaoServiceTest {
 		Locacao locacao = service.alugarFilme(usuario, filmes);
 
 		assertThat(locacao.getDataRetorno(), caiNumaSegunda());
+	}	
+	
+	@Test
+	public void naoDeveAlugarFilmeUsuarioNegativado() throws FilmeSemEstoqueException, LocacaoException {
+		Usuario usuario = umUsuario().agora();
+		Usuario usuario2 = umUsuario().comNome("usuario2").agora();
+		List<Filme> filmes = Arrays.asList(umFilme().agora());
+		
+		when(consultaSpc.usuarioNegativado(usuario)).thenReturn(true);
+		
+		try {
+			service.alugarFilme(usuario, filmes);
+			Assert.fail();
+		}catch (UsuarioNegativadoException e) {
+			Assert.assertThat(e.getMessage(), is("Usuario Negativado"));
+		}
 	}
-	
-	public static void main(String[] args) {
-		new BuilderMaster().gerarCodigoClasse(Locacao.class);
-	}
-	
-	
 }

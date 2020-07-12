@@ -9,14 +9,16 @@ import br.ce.wcaquino.entidades.Locacao;
 import br.ce.wcaquino.entidades.Usuario;
 import br.ce.wcaquino.exceptions.FilmeSemEstoqueException;
 import br.ce.wcaquino.exceptions.LocacaoException;
+import br.ce.wcaquino.exceptions.UsuarioNegativadoException;
 import br.ce.wcaquino.utils.DataUtils;
 import dao.LocacaoDao;
 
 public class LocacaoService {
 
 	private LocacaoDao dao;
+	private SPCService consulta;
 	
-	public Locacao alugarFilme(Usuario usuario, List<Filme> filmes) throws FilmeSemEstoqueException, LocacaoException {
+	public Locacao alugarFilme(Usuario usuario, List<Filme> filmes) throws FilmeSemEstoqueException, LocacaoException, UsuarioNegativadoException {
 		if(filmes == null) {
 			throw new LocacaoException("lista de filmes vazia");
 		}
@@ -64,6 +66,10 @@ public class LocacaoService {
 		
 		locacao.setDataRetorno(dataEntrega);
 		
+		if(consulta.usuarioNegativado(usuario)) {
+			throw new UsuarioNegativadoException("Usuario Negativado");
+		}
+		
 		//Salvando a locacao...	
 		//TODO adicionar método para salvar
 		
@@ -74,5 +80,8 @@ public class LocacaoService {
 	
 	public void setLocacaoDao(LocacaoDao dao) {
 		this.dao = dao;
+	}
+	public void setConsultaSpc(SPCService consulta) {
+		this.consulta = consulta;
 	}
 }
