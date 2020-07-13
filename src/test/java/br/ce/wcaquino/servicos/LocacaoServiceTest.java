@@ -4,7 +4,6 @@ package br.ce.wcaquino.servicos;
 import static br.ce.wcaquino.matchers.MatchersProprios.caiNumaSegunda;
 import static br.ce.wcaquino.matchers.MatchersProprios.ehHoje;
 import static br.ce.wcaquino.matchers.MatchersProprios.ehHojeComDiferencaDeDias;
-import static br.ce.wcaquino.utils.DataUtils.obterDataComDiferencaDias;
 import static builders.FilmeBuilder.umFilme;
 import static builders.FilmeBuilder.umFilmeSemEstoque;
 import static builders.LocacaoBuilder.umLocacao;
@@ -30,7 +29,10 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ErrorCollector;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
 
 import br.ce.wcaquino.entidades.Filme;
 import br.ce.wcaquino.entidades.Locacao;
@@ -39,31 +41,28 @@ import br.ce.wcaquino.exceptions.FilmeSemEstoqueException;
 import br.ce.wcaquino.exceptions.LocacaoException;
 import br.ce.wcaquino.exceptions.UsuarioNegativadoException;
 import br.ce.wcaquino.utils.DataUtils;
-import builders.LocacaoBuilder;
 import dao.LocacaoDao;
 
 public class LocacaoServiceTest {
 	
-	private LocacaoDao dao;
+	@Mock
+	private LocacaoDao dao;	
 	
-	private SPCService spc;
+	@Mock
+	private SPCService spc;	
 	
-	private LocacaoService service; 
-	
+	@Mock
 	private EmailService email;
+	
+	@InjectMocks
+	private LocacaoService service; 
 	
 	@Rule
 	public ErrorCollector error = new ErrorCollector(); 
 	
 	@Before
 	public void setup() {
-		service = new LocacaoService();
-		dao = Mockito.mock(LocacaoDao.class);
-		spc = Mockito.mock(SPCService.class);
-		email = Mockito.mock(EmailService.class);
-		service.setEmailService(email);
-		service.setLocacaoDao(dao);
-		service.setConsultaSpc(spc);
+		MockitoAnnotations.initMocks(this);
 	}
 	
 	@Test
@@ -76,8 +75,7 @@ public class LocacaoServiceTest {
 		
 		error.checkThat(locacao.getValor(), is(equalTo(9.0)));
 	    error.checkThat(locacao.getDataLocacao(), ehHoje());
-	    error.checkThat(locacao.getDataRetorno(), ehHojeComDiferencaDeDias(1));
-	  
+	    error.checkThat(locacao.getDataRetorno(), ehHojeComDiferencaDeDias(1));  
 	}
 	
 	@Test(expected = FilmeSemEstoqueException.class)
