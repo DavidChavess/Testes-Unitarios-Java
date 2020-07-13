@@ -12,7 +12,11 @@ import static builders.UsuarioBuilder.umUsuario;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
@@ -124,7 +128,8 @@ public class LocacaoServiceTest {
 		Usuario usuario = umUsuario().agora();
 		List<Filme> filmes = Arrays.asList(umFilme().agora());
 		
-		when(spc.usuarioNegativado(usuario)).thenReturn(true);
+		//when(spc.usuarioNegativado(usuario)).thenReturn(true);
+		when(spc.usuarioNegativado(any(Usuario.class))).thenReturn(true);
 		
 		try {
 			service.alugarFilme(usuario, filmes);
@@ -139,8 +144,18 @@ public class LocacaoServiceTest {
 	@Test 
 	public void deveEnviarEmailParaLocacoesAtrasadas() {
 		//cenario
-		Usuario usuario = umUsuario().agora();
-		List<Locacao> locacoes = Arrays.asList(umLocacao().comUsuario(usuario).comDataRetorno(obterDataComDiferencaDias(-2)).agora());
+		
+		Usuario usuario = umUsuario().comNome("usuario em dia").agora();
+		Usuario usuario2 = umUsuario().comNome("atrasado 1").agora();
+		Usuario usuario3 = umUsuario().comNome("atrasado 2").agora();
+		Usuario usuario4 = umUsuario().comNome("atrasado 3").agora();
+		
+		List<Locacao> locacoes = Arrays.asList(
+			umLocacao().comUsuario(usuario).agora(),
+			umLocacao().atrasado().comUsuario(usuario2).agora(),
+			umLocacao().atrasado().comUsuario(usuario3).agora(),
+			umLocacao().atrasado().comUsuario(usuario4).agora()
+		);
 		
 		when(dao.obterLocacoesPendentes()).thenReturn(locacoes);
 		
@@ -148,6 +163,10 @@ public class LocacaoServiceTest {
 		service.notificarAtrasos();
 		
 		//verificacao
-		verify(email).notificarAtraso(usuario);	
+		verify(email, times(3)).notificarAtraso(any(Usuario.class));
+		verify(email, never()).notificarAtraso(usuario);
+		verify(email).notificarAtraso(usuario2);
+		verify(email).notificarAtraso(usuario3);
+		verifyNoMoreInteractions(email);
 	}
 }
