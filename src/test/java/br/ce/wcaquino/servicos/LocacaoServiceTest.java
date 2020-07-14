@@ -39,8 +39,11 @@ import br.ce.wcaquino.entidades.Locacao;
 import br.ce.wcaquino.entidades.Usuario;
 import br.ce.wcaquino.exceptions.FilmeSemEstoqueException;
 import br.ce.wcaquino.exceptions.LocacaoException;
+import br.ce.wcaquino.exceptions.NumeroMenorException;
 import br.ce.wcaquino.exceptions.UsuarioNegativadoException;
 import br.ce.wcaquino.utils.DataUtils;
+import builders.FilmeBuilder;
+import builders.UsuarioBuilder;
 import dao.LocacaoDao;
 
 public class LocacaoServiceTest {
@@ -122,7 +125,7 @@ public class LocacaoServiceTest {
 	}	
 	
 	@Test
-	public void naoDeveAlugarFilmeUsuarioNegativado() throws FilmeSemEstoqueException, LocacaoException {
+	public void naoDeveAlugarFilmeUsuarioNegativado() throws Exception {
 		Usuario usuario = umUsuario().agora();
 		List<Filme> filmes = Arrays.asList(umFilme().agora());
 		
@@ -166,5 +169,37 @@ public class LocacaoServiceTest {
 		verify(email).notificarAtraso(usuario2);
 		verify(email).notificarAtraso(usuario3);
 		verifyNoMoreInteractions(email);
+	}
+	
+	@Test
+	public void deveTratarErroNoSPC() throws Exception {
+		//cenario
+		Usuario usuario = UsuarioBuilder.umUsuario().agora();
+		List<Filme> filmes = Arrays.asList(FilmeBuilder.umFilme().agora());
+		
+		when(spc.usuarioNegativado(usuario)).thenThrow(new Exception("falha catastrófica"));
+		
+		try {
+			//acao
+			service.alugarFilme(usuario, filmes);
+			Assert.fail();
+		}catch (LocacaoException e) {
+			//verificacao
+			assertThat(e.getMessage(), is("Problemas com SPC!, Tente novamente"));
+		}
+	}
+	
+	@Test
+	public void deveRetornarExcecaoSeUmNumeroForMenor() {
+		//cenario
+		int x = 50;
+		try {
+			//Acao
+			service.testeDeNumero(x);
+			Assert.fail();
+		}catch (NumeroMenorException e) {
+			//verificacao
+			assertThat(e.getMessage(), is("o numero é menor"));
+		}
 	}
 }

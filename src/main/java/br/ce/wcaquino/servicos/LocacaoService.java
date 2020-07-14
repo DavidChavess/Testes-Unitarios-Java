@@ -9,6 +9,7 @@ import br.ce.wcaquino.entidades.Locacao;
 import br.ce.wcaquino.entidades.Usuario;
 import br.ce.wcaquino.exceptions.FilmeSemEstoqueException;
 import br.ce.wcaquino.exceptions.LocacaoException;
+import br.ce.wcaquino.exceptions.NumeroMenorException;
 import br.ce.wcaquino.exceptions.UsuarioNegativadoException;
 import br.ce.wcaquino.utils.DataUtils;
 import dao.LocacaoDao;
@@ -66,11 +67,17 @@ public class LocacaoService {
 		}
 		
 		locacao.setDataRetorno(dataEntrega);
+		boolean negativado;
 		
-		if(consulta.usuarioNegativado(usuario)) {
-			throw new UsuarioNegativadoException("Usuario Negativado");
+		try {
+			negativado = consulta.usuarioNegativado(usuario);
+		}catch (Exception e) {
+			throw new LocacaoException("Problemas com SPC!, Tente novamente");
 		}
 		
+		if(negativado) {
+			throw new UsuarioNegativadoException("Usuario Negativado");
+		}		
 		//Salvando a locacao...	
 		//TODO adicionar m√©todo para salvar
 		
@@ -87,13 +94,9 @@ public class LocacaoService {
 		}
 	}
 	
-	public void setLocacaoDao(LocacaoDao dao) {
-		this.dao = dao;
-	}
-	public void setConsultaSpc(SPCService consulta) {
-		this.consulta = consulta;
-	}
-	public void setEmailService(EmailService email) {
-		this.emailService = email;
+	public void testeDeNumero(int x) throws NumeroMenorException {
+		if(x < 100) {
+			throw new NumeroMenorException("o numero È menor");
+		}
 	}
 }
