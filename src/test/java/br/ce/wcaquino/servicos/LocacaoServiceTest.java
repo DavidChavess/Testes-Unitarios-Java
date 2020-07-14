@@ -29,10 +29,14 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ErrorCollector;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.mockito.internal.matchers.Any;
+
+import com.sun.tools.javac.comp.Analyzer;
 
 import br.ce.wcaquino.entidades.Filme;
 import br.ce.wcaquino.entidades.Locacao;
@@ -41,8 +45,10 @@ import br.ce.wcaquino.exceptions.FilmeSemEstoqueException;
 import br.ce.wcaquino.exceptions.LocacaoException;
 import br.ce.wcaquino.exceptions.NumeroMenorException;
 import br.ce.wcaquino.exceptions.UsuarioNegativadoException;
+import br.ce.wcaquino.matchers.MatchersProprios;
 import br.ce.wcaquino.utils.DataUtils;
 import builders.FilmeBuilder;
+import builders.LocacaoBuilder;
 import builders.UsuarioBuilder;
 import dao.LocacaoDao;
 
@@ -187,6 +193,22 @@ public class LocacaoServiceTest {
 			//verificacao
 			assertThat(e.getMessage(), is("Problemas com SPC!, Tente novamente"));
 		}
+	}
+	
+	@Test
+	public void deveProrrogarLocacao() {
+		Locacao locacao = umLocacao().agora();
+		
+		service.prorrogarLocacao(locacao, 3);
+		
+		
+		ArgumentCaptor<Locacao> argCapt = ArgumentCaptor.forClass(Locacao.class);
+		Mockito.verify(dao).salvar(argCapt.capture());
+		Locacao locacaoRetornada = argCapt.getValue();
+		
+		error.checkThat(locacaoRetornada.getValor(), is(12.0));
+		error.checkThat(locacaoRetornada.getDataRetorno(), ehHojeComDiferencaDeDias(3));
+		error.checkThat(locacaoRetornada.getDataLocacao(), ehHoje());
 	}
 	
 	@Test

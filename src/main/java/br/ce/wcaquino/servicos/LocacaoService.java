@@ -86,6 +86,16 @@ public class LocacaoService {
 		return locacao;
 	}
 	
+	public void prorrogarLocacao(Locacao locacao, int nDias) {
+		Locacao novaLocacao = new Locacao();
+		novaLocacao.setFilmes(locacao.getFilme());
+		novaLocacao.setUsuario(locacao.getUsuario());
+		novaLocacao.setDataLocacao(new Date());
+		novaLocacao.setDataRetorno(DataUtils.obterDataComDiferencaDias(nDias));
+		novaLocacao.setValor(4.0 * nDias);
+		dao.salvar(novaLocacao);
+	}
+	
 	public void notificarAtrasos() {
 		List<Locacao> pendentes = dao.obterLocacoesPendentes();
 		for(Locacao p : pendentes) {
