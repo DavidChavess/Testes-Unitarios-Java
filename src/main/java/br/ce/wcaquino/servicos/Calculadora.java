@@ -5,6 +5,7 @@ import br.ce.wcaquino.exceptions.DivisaoPorZeroException;
 public class Calculadora {
 	
 	public int somar(int a, int b) {
+		System.out.println("Estou imprimindo!");
 		return a + b;
 	}
 
@@ -23,17 +24,8 @@ public class Calculadora {
 		return a / b;
 	}
 	
-	public double valorComDesconto(int qtd, double valor) {
-		if(qtd == 3) {
-			return subtrai(valor, (valor * 0.25));
-		}if(qtd == 4) {
-			return subtrai(valor, (valor * 0.50));
-		}if(qtd == 5) {
-			return subtrai(valor, (valor * 0.75));
-		}if(qtd >= 6) {
-			return subtrai(valor, valor);
-		}
-		return valor;
+	public void imprimi() {
+		System.out.println("Esta imprimindo ....");
 	}
 
 }

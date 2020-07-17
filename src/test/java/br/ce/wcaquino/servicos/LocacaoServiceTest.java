@@ -34,9 +34,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.mockito.internal.matchers.Any;
-
-import com.sun.tools.javac.comp.Analyzer;
 
 import br.ce.wcaquino.entidades.Filme;
 import br.ce.wcaquino.entidades.Locacao;
@@ -45,12 +42,11 @@ import br.ce.wcaquino.exceptions.FilmeSemEstoqueException;
 import br.ce.wcaquino.exceptions.LocacaoException;
 import br.ce.wcaquino.exceptions.NumeroMenorException;
 import br.ce.wcaquino.exceptions.UsuarioNegativadoException;
-import br.ce.wcaquino.matchers.MatchersProprios;
 import br.ce.wcaquino.utils.DataUtils;
 import builders.FilmeBuilder;
-import builders.LocacaoBuilder;
 import builders.UsuarioBuilder;
 import dao.LocacaoDao;
+
 
 public class LocacaoServiceTest {
 	
@@ -93,6 +89,7 @@ public class LocacaoServiceTest {
 		List<Filme> filmes = Arrays.asList(umFilmeSemEstoque().agora());
 				
 		service.alugarFilme(usuario, filmes);
+	
 	}
 
 	@Test
