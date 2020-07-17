@@ -10,8 +10,7 @@ import static builders.LocacaoBuilder.umLocacao;
 import static builders.UsuarioBuilder.umUsuario;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -19,21 +18,23 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
 import org.junit.Assert;
-import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ErrorCollector;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 
 import br.ce.wcaquino.entidades.Filme;
 import br.ce.wcaquino.entidades.Locacao;
@@ -47,8 +48,12 @@ import builders.FilmeBuilder;
 import builders.UsuarioBuilder;
 import dao.LocacaoDao;
 
-
+@RunWith(PowerMockRunner.class)
+@PrepareForTest({LocacaoService.class, DataUtils.class})
 public class LocacaoServiceTest {
+	
+	@InjectMocks
+	private LocacaoService service; 
 	
 	@Mock
 	private LocacaoDao dao;	
@@ -58,10 +63,7 @@ public class LocacaoServiceTest {
 	
 	@Mock
 	private EmailService email;
-	
-	@InjectMocks
-	private LocacaoService service; 
-	
+
 	@Rule
 	public ErrorCollector error = new ErrorCollector(); 
 	
@@ -72,7 +74,10 @@ public class LocacaoServiceTest {
 	
 	@Test
 	public void deveAlugarFilmes() throws Exception{
-		Assume.assumeFalse(DataUtils.verificarDiaSemana(new Date(), Calendar.SATURDAY));
+//		Assume.assumeFalse(DataUtils.verificarDiaSemana(new Date(), Calendar.SATURDAY));
+
+		PowerMockito.whenNew(Date.class).withNoArguments().thenReturn(DataUtils.obterData(14,7,2020));
+
 		Usuario usuario = umUsuario().agora();
 		List<Filme> filmes = Arrays.asList(umFilme().comValor(9.0).agora());
 		
@@ -100,7 +105,7 @@ public class LocacaoServiceTest {
 			service.alugarFilme(null, filmes);
 			Assert.fail();
 		}catch (LocacaoException e) {
-			assertThat(e.getMessage(), is("usuario vazio"));
+			error.checkThat(e.getMessage(), is("usuario vazio"));
 		}
 	}
 	
@@ -112,19 +117,21 @@ public class LocacaoServiceTest {
 			service.alugarFilme(usuario, null);
 			Assert.fail();
 		} catch (LocacaoException e) {
-			assertThat(e.getMessage(), is("lista de filmes vazia"));
+			error.checkThat(e.getMessage(), is("lista de filmes vazia"));
 		}
 	}
 	
 	@Test
 	public void deveEntregarFilmeNaSegundaSeAlugarNoSabado() throws Exception {
-		Assume.assumeTrue(DataUtils.verificarDiaSemana(new Date(), Calendar.SATURDAY));
+		
 		List<Filme> filmes = Arrays.asList(umFilme().agora());
 		Usuario usuario = umUsuario().agora();
 
+		PowerMockito.whenNew(Date.class).withNoArguments().thenReturn(DataUtils.obterData(18,7,2020));
+		
 		Locacao locacao = service.alugarFilme(usuario, filmes);
 
-		assertThat(locacao.getDataRetorno(), caiNumaSegunda());
+		error.checkThat(locacao.getDataRetorno(), caiNumaSegunda());
 	}	
 	
 	@Test
@@ -139,7 +146,7 @@ public class LocacaoServiceTest {
 			service.alugarFilme(usuario, filmes);
 			Assert.fail();
 		}catch (UsuarioNegativadoException e) {
-			Assert.assertThat(e.getMessage(), is("Usuario Negativado"));
+			error.checkThat(e.getMessage(), is("Usuario Negativado"));
 		}
 		
 		Mockito.verify(spc).usuarioNegativado(usuario);
@@ -188,7 +195,7 @@ public class LocacaoServiceTest {
 			Assert.fail();
 		}catch (LocacaoException e) {
 			//verificacao
-			assertThat(e.getMessage(), is("Problemas com SPC!, Tente novamente"));
+			error.checkThat(e.getMessage(), is("Problemas com SPC!, Tente novamente"));
 		}
 	}
 	
@@ -218,7 +225,7 @@ public class LocacaoServiceTest {
 			Assert.fail();
 		}catch (NumeroMenorException e) {
 			//verificacao
-			assertThat(e.getMessage(), is("o numero é menor"));
+			error.checkThat(e.getMessage(), is("o numero é menor"));
 		}
 	}
 }
