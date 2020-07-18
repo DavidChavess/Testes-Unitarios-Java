@@ -38,6 +38,7 @@ import org.mockito.MockitoAnnotations;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
+import org.powermock.reflect.Whitebox;
 
 import br.ce.wcaquino.entidades.Filme;
 import br.ce.wcaquino.entidades.Locacao;
@@ -247,7 +248,6 @@ public class LocacaoServiceTest {
 		Usuario usuario = umUsuario().agora();
 		
 		PowerMockito.doReturn(1.0).when(service, "calcularValorLocacao", filmes);
-	
 		Locacao locacao = service.alugarFilme(usuario, filmes);
 		
 		
@@ -255,6 +255,16 @@ public class LocacaoServiceTest {
 		PowerMockito.verifyPrivate(service).invoke("calcularValorLocacao", filmes);
 		
 	}
+	
+	@Test
+	public void deveCalcularValorDoFilme() throws Exception {
+		List<Filme> filmes = Arrays.asList(umFilme().agora());
+		
+		Double valor = (Double) Whitebox.invokeMethod(service, "calcularValorLocacao", filmes);
+		
+		error.checkThat(valor, is(4.0));	
+	}
+	
 	
 	@Test
 	public void deveRetornarExcecaoSeUmNumeroForMenor() {
