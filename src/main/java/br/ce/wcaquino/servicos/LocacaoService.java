@@ -1,6 +1,9 @@
 package br.ce.wcaquino.servicos;
 
-import java.util.Calendar;
+import static br.ce.wcaquino.utils.DataUtils.adicionarDias;
+import static br.ce.wcaquino.utils.DataUtils.verificarDiaSemana;
+import static java.util.Calendar.SUNDAY;
+
 import java.util.Date;
 import java.util.List;
 
@@ -37,20 +40,20 @@ public class LocacaoService {
 	
 		Locacao locacao = new Locacao();
 		locacao.getFilme().addAll(filmes);
-		
 		locacao.setUsuario(usuario);
-		locacao.setDataLocacao(Calendar.getInstance().getTime());		
+		locacao.setDataLocacao(obterData());		
 		locacao.setValor(calcularValorLocacao(filmes));
 
 		//Entrega no dia seguinte
-		Date dataEntrega = Calendar.getInstance().getTime();
-		dataEntrega = DataUtils.adicionarDias(dataEntrega, 1);
+		Date dataEntrega = obterData();
+		dataEntrega = adicionarDias(dataEntrega, 1);
 	
-		if(DataUtils.verificarDiaSemana(dataEntrega, Calendar.SUNDAY)) {
-			dataEntrega = DataUtils.adicionarDias(dataEntrega, 1);
+		if(verificarDiaSemana(dataEntrega, SUNDAY)) {
+			dataEntrega = adicionarDias(dataEntrega, 1);
 		}
 		
 		locacao.setDataRetorno(dataEntrega);
+		
 		boolean negativado;
 		
 		try {
@@ -61,13 +64,19 @@ public class LocacaoService {
 		
 		if(negativado) {
 			throw new UsuarioNegativadoException("Usuario Negativado");
-		}		
+		}	
+		
 		//Salvando a locacao...	
 		//TODO adicionar método para salvar
 		
 		dao.salvar(locacao); 
 		
 		return locacao;
+	}
+
+	protected Date obterData() {
+		Date dataEntrega = new Date();
+		return dataEntrega;
 	}
 
 	private double calcularValorLocacao(List<Filme> filmes) {
